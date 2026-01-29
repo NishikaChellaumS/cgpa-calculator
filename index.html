@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CGPA Calculator</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        padding: 20px;
+    }
+    .container {
+        max-width: 700px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+        text-align: center;
+    }
+    input {
+        width: 100%;
+        padding: 8px;
+        margin: 6px 0 12px;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    button:hover {
+        background: #0056b3;
+    }
+    .subject-box {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+    .result {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>CGPA Calculator</h2>
+
+<label>Number of Semesters:</label>
+<input type="number" id="semCount" min="1">
+<button onclick="createSemesters()">Next</button>
+
+<div id="semesterInputs"></div>
+
+<button onclick="calculate()">Calculate</button>
+
+<div class="result" id="result"></div>
+</div>
+
+<script>
+function createSemesters() {
+    let semCount = document.getElementById("semCount").value;
+    let container = document.getElementById("semesterInputs");
+    container.innerHTML = "";
+
+    for (let i = 1; i <= semCount; i++) {
+        container.innerHTML += `
+            <h3>Semester ${i}</h3>
+            <label>Number of Subjects:</label>
+            <input type="number" id="sub${i}" min="1" onchange="createSubjects(${i})">
+            <div id="subjects${i}"></div>
+            <p id="gpa${i}"></p>
+        `;
+    }
+}
+
+function createSubjects(sem) {
+    let subCount = document.getElementById(`sub${sem}`).value;
+    let div = document.getElementById(`subjects${sem}`);
+    div.innerHTML = "";
+
+    for (let j = 1; j <= subCount; j++) {
+        div.innerHTML += `
+            <div class="subject-box">
+                <label>Subject ${j} Credit:</label>
+                <input type="number" step="0.5" id="c${sem}${j}">
+                <label>Subject ${j} Grade Point:</label>
+                <input type="number" step="0.1" id="g${sem}${j}">
+            </div>
+        `;
+    }
+}
+
+function calculate() {
+    let semCount = parseInt(document.getElementById("semCount").value);
+
+    let grandCredits = 0;
+    let grandPoints = 0;
+
+    for (let i = 1; i <= semCount; i++) {
+        let subCount = parseInt(document.getElementById(`sub${i}`).value);
+
+        let semCredits = 0;
+        let semPoints = 0;
+
+        for (let j = 1; j <= subCount; j++) {
+            let credit = parseFloat(document.getElementById(`c${i}${j}`).value);
+            let grade  = parseFloat(document.getElementById(`g${i}${j}`).value);
+
+            if (isNaN(credit) || isNaN(grade)) continue;
+
+            // SUBJECT LEVEL (only truth)
+            let points = credit * grade;
+
+            semCredits += credit;
+            semPoints  += points;
+
+            grandCredits += credit;
+            grandPoints  += points;
+        }
+
+        let sgpa = semPoints / semCredits;
+
+        document.getElementById(`gpa${i}`).innerHTML =
+            `<strong>Semester ${i} GPA:</strong> ${sgpa.toFixed(2)}`;
+    }
+
+    let cgpa = grandPoints / grandCredits;
+
+    document.getElementById("result").innerHTML =
+        `<hr><strong>Final CGPA:</strong> ${cgpa.toFixed(2)}`;
+}
+
+</script>
+
+</body>
+</html>
